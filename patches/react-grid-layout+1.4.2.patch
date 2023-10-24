@@ -1,0 +1,44 @@
+diff --git a/node_modules/react-grid-layout/build/components/WidthProvider.js b/node_modules/react-grid-layout/build/components/WidthProvider.js
+index 95bb92b..4067817 100644
+--- a/node_modules/react-grid-layout/build/components/WidthProvider.js
++++ b/node_modules/react-grid-layout/build/components/WidthProvider.js
+@@ -59,17 +59,23 @@ function WidthProvideRGL /*:: <Config>*/(ComposedComponent /*: React.AbstractCom
+       _defineProperty(this, "elementRef", /*#__PURE__*/React.createRef());
+       _defineProperty(this, "mounted", false);
+       _defineProperty(this, "resizeObserver", void 0);
++      _defineProperty(this, "animationFrameId", void 0);
+     }
+     componentDidMount() {
+       this.mounted = true;
+       this.resizeObserver = new _resizeObserverPolyfill.default(entries => {
+-        const node = this.elementRef.current;
+-        if (node instanceof HTMLElement) {
+-          const width = entries[0].contentRect.width;
+-          this.setState({
+-            width
+-          });
++        if (this.animationFrameId) {
++          cancelAnimationFrame(this.animationFrameId);
+         }
++        this.animationFrameId = requestAnimationFrame(() => {
++          const node = this.elementRef.current;
++          if (node instanceof HTMLElement) {
++            const width = entries[0].contentRect.width;
++            this.setState({
++              width
++            });
++          }
++        });
+       });
+       const node = this.elementRef.current;
+       if (node instanceof HTMLElement) {
+@@ -83,6 +89,9 @@ function WidthProvideRGL /*:: <Config>*/(ComposedComponent /*: React.AbstractCom
+         this.resizeObserver.unobserve(node);
+       }
+       this.resizeObserver.disconnect();
++      if (this.animationFrameId) {
++        cancelAnimationFrame(this.animationFrameId);
++      }
+     }
+     render() {
+       const {
